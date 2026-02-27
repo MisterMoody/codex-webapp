@@ -3,31 +3,249 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <title>Job Checklist App</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --ok: #16a34a;
+      --danger: #dc2626;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, #eff4ff 0%, var(--bg) 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .app {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid #e5e7eb;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 1.25rem;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: clamp(1.25rem, 2vw + 1rem, 1.8rem);
+      margin: 0;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin-top: 0.35rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: grid;
+      gap: 0.85rem;
+      padding: 1rem 1.25rem;
+      background: #fcfdff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 0.72rem 0.85rem;
+      font-size: 0.96rem;
+      color: var(--text);
+    }
+
+    select:focus, button:focus, input[type='checkbox']:focus-visible {
+      outline: 3px solid var(--primary-soft);
+      outline-offset: 1px;
+      border-color: var(--primary);
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover { filter: brightness(0.96); }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--danger);
+      border-color: #fecaca;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 1rem 1.25rem 1.25rem;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .progress-wrap {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    progress {
+      width: 100%;
+      height: 0.9rem;
+      border: 0;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e5e7eb;
+    }
+
+    progress::-webkit-progress-bar { background: #e5e7eb; }
+    progress::-webkit-progress-value {
+      background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+      border-radius: 999px;
+    }
+
+    progress::-moz-progress-bar {
+      background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+      border-radius: 999px;
+    }
+
+    .status-pill {
+      font-size: 0.82rem;
+      padding: 0.2rem 0.56rem;
+      border-radius: 999px;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: #dbeafe;
+      white-space: nowrap;
+    }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .task {
+      border: 1px solid #e5e7eb;
+      border-radius: 11px;
+      padding: 0.7rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #fff;
+    }
+
+    .task input[type='checkbox'] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: var(--ok);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .task label {
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .task.done {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+
+    .task.done label {
+      text-decoration: line-through;
+      color: #166534;
+    }
+
+    .placeholder {
+      padding: 1rem;
+      border: 1px dashed #cbd5e1;
+      border-radius: 11px;
+      color: var(--muted);
+      text-align: center;
+      background: #f8fafc;
+    }
+
+    @media (min-width: 640px) {
+      .controls {
+        grid-template-columns: 2fr 1fr;
+        align-items: end;
+      }
+
+      .buttons {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <main class="app">
     <header class="header">
-      <div class="title-wrap">
-        <h1>Field Job Checklist <span id="buildTag" class="build-tag" aria-label="build version"></span></h1>
-        <p class="subtitle">Choose a job type, track each task, and monitor completion progress.</p>
-      </div>
+      <h1>Field Job Checklist</h1>
+      <p class="subtitle">Choose a job type, track each task, and monitor completion progress.</p>
+    </header>
 
-      <div class="job-picker">
+    <section class="controls" aria-label="Checklist Controls">
+      <div class="control-group">
         <label for="jobType">Job Type</label>
         <select id="jobType" aria-describedby="jobTypeHelp">
           <option value="">Select a job type...</option>
         </select>
         <small id="jobTypeHelp" class="subtitle">Production-ready job models aligned to common field operations.</small>
       </div>
-    </header>
-
-    <section class="controls" aria-label="Checklist Controls">
-      <div class="subtitle">Load the selected checklist, complete tasks, and reset when needed.</div>
       <div class="buttons">
         <button id="loadBtn" class="btn-primary" type="button">Load Checklist</button>
         <button id="resetBtn" class="btn-secondary" type="button">Reset</button>
@@ -35,14 +253,12 @@
     </section>
 
     <section class="content" aria-live="polite">
-      <div class="panel">
+      <div class="progress-wrap">
         <div class="progress-header">
           <span id="progressText">Completion: 0 of 0 tasks (0%)</span>
           <span id="statusPill" class="status-pill">Not Started</span>
         </div>
-        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Task completion progress">
-          <div id="progressFill" class="progress-fill"></div>
-        </div>
+        <progress id="progressBar" value="0" max="100">0%</progress>
       </div>
 
       <ul id="checklist" class="checklist"></ul>
@@ -50,6 +266,182 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <script>
+    const jobs = {
+      'Incident / Break-Fix': [
+        'Network Outage – Wired',
+        'Network Outage – Wireless',
+        'Single User Connectivity Failure',
+        'IDF/MDF Link Down',
+        'Access Point Offline',
+        'Switch Port Failure',
+        'Circuit Down (Carrier)',
+        'Phone Not Registering',
+        'VoIP Call Quality Issue',
+        'Power Failure – Rack/Device',
+        'Hardware Replacement – Failed Device',
+        'Cabling Fault – Suspected Physical Layer Issue'
+      ],
+      'MAC (Move, Add, Changes)': [
+        'User Move (Workstation Relocation)',
+        'New User Setup',
+        'Patch / Repatch (IDF/MDF)',
+        'VLAN Change / Port Reconfiguration',
+        'Phone Relocation',
+        'AP Relocation',
+        'Rack Reorganization',
+        'Labeling & Documentation Update',
+        'Equipment Decommission'
+      ],
+      'Installation': [
+        'Access Point Installation',
+        'Switch Installation',
+        'Firewall Installation',
+        'Router Installation',
+        'Structured Cabling – New Run',
+        'Fiber Install – Single Mode',
+        'Fiber Install – Multi Mode',
+        'Rack & Stack',
+        'Camera Installation (IP Surveillance)',
+        'Cellular Modem Installation (LTE/5G)',
+        'ISP Circuit Turn-Up Support'
+      ],
+      'Migration': [
+        'Circuit Turn-Up',
+        'Carrier Demarc Extension',
+        'WAN Cutover',
+        'Voice Platform Migration',
+        'Device Migration to New Controller',
+        'Site Network Migration',
+        'SD-WAN Deployment',
+        'Equipment Swap During Maintenance Window'
+      ],
+      'Testing': [
+        'Cable Certification (Fluke)',
+        'Fiber Light Level Testing',
+        'Loopback Testing',
+        'AP Signal Survey',
+        'Post-Install Validation',
+        'Failover Testing',
+        'Redundancy Verification',
+        'Patch Panel Audit'
+      ],
+      'Survey': [
+        'Pre-Install Survey',
+        '5G/LTE Survey',
+        'Power & Pathway Validation',
+        'Rack Capacity Assessment',
+        'Wireless Heat Mapping',
+        'Infrastructure Documentation Audit',
+        'ISP Availability Survey'
+      ],
+      'Remote (Smart) Hands': [
+        'Console Access Session',
+        'Device Factory Reset',
+        'USB Image Install',
+        'Power Cycle / Smart Hands Reboot',
+        'Patch Directed by NOC',
+        'Cross-Connect Verification',
+        'Label Confirmation & Photo Documentation'
+      ],
+      'Decommission': [
+        'Equipment Removal',
+        'Circuit Disconnect',
+        'Rack Teardown',
+        'Asset Recovery & Packaging',
+        'Site Closure Support'
+      ],
+      'Emergency / After-Hours': [
+        'Emergency Outage Response',
+        'After-Hours Maintenance',
+        'Disaster Recovery Support',
+        'Temporary Network Deployment'
+      ]
+    };
+
+    const jobTypeEl = document.getElementById('jobType');
+    const loadBtn = document.getElementById('loadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const checklistEl = document.getElementById('checklist');
+    const placeholderEl = document.getElementById('placeholder');
+    const progressBarEl = document.getElementById('progressBar');
+    const progressTextEl = document.getElementById('progressText');
+    const statusPillEl = document.getElementById('statusPill');
+
+    Object.keys(jobs).forEach((job) => {
+      const opt = document.createElement('option');
+      opt.value = job;
+      opt.textContent = job;
+      jobTypeEl.appendChild(opt);
+    });
+
+    function renderChecklist(type) {
+      checklistEl.innerHTML = '';
+      const tasks = jobs[type] || [];
+
+      if (tasks.length === 0) {
+        placeholderEl.hidden = false;
+        updateProgress();
+        return;
+      }
+
+      placeholderEl.hidden = true;
+
+      tasks.forEach((task, idx) => {
+        const li = document.createElement('li');
+        li.className = 'task';
+
+        const id = `task-${idx}`;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = id;
+        cb.addEventListener('change', () => {
+          li.classList.toggle('done', cb.checked);
+          updateProgress();
+        });
+
+        const label = document.createElement('label');
+        label.setAttribute('for', id);
+        label.textContent = task;
+
+        li.appendChild(cb);
+        li.appendChild(label);
+        checklistEl.appendChild(li);
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const items = Array.from(checklistEl.querySelectorAll('.task'));
+      const total = items.length;
+      const done = items.filter((item) => item.querySelector('input').checked).length;
+      const percent = total ? Math.round((done / total) * 100) : 0;
+
+      progressBarEl.value = percent;
+      progressTextEl.textContent = `Completion: ${done} of ${total} tasks (${percent}%)`;
+
+      if (total === 0 || done === 0) {
+        statusPillEl.textContent = total === 0 ? 'Not Started' : 'In Progress';
+      } else if (done === total) {
+        statusPillEl.textContent = 'Complete';
+      } else {
+        statusPillEl.textContent = 'In Progress';
+      }
+    }
+
+    loadBtn.addEventListener('click', () => {
+      renderChecklist(jobTypeEl.value);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      jobTypeEl.value = '';
+      checklistEl.innerHTML = '';
+      placeholderEl.hidden = false;
+      updateProgress();
+    });
+
+    updateProgress();
+  </script>
 </body>
 </html>
