@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Checklist App</title>
+  <style>
+    :root {
+      --bg: #1C1C1E;
+      --card: #28282B;
+      --border: #B01B34;
+      --primary: #C41E3A;
+      --primary-hover: #D82140;
+      --progress: #FFD500;
+      --text: #FBFBFB;
+      --muted: #FAF9F6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      padding: 1rem;
+    }
+
+    .app {
+      max-width: 720px;
+      margin: 0 auto;
+      display: grid;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.5rem;
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.9rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.72rem 0.8rem;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--card);
+    }
+
+    button {
+      background: var(--primary);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    .actions {
+      display: grid;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    #statusLabel {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--card);
+    }
+
+    #progressFill {
+      width: 0%;
+      height: 100%;
+      background: var(--progress);
+      transition: width 0.2s ease;
+    }
+
+    #checklist {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.62rem 0.7rem;
+      background: var(--card);
+    }
+
+    .task label {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .task.done label {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    #emptyState {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <h1>Job Checklist App</h1>
+      <p class="muted">Select a job type and track completion with a live progress bar.</p>
+
+      <div class="field">
+        <label for="jobType">Job Type</label>
+        <select id="jobType">
+          <option value="">Select a job type...</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button id="loadBtn" type="button">Load Checklist</button>
+        <button id="resetBtn" type="button">Reset</button>
+      </div>
+    </section>
+
+    <section class="card" aria-live="polite">
+      <div class="progress-row">
+        <strong id="progressText">Completion: 0 of 0 tasks (0%)</strong>
+        <span id="statusLabel">Not Started</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Checklist completion">
+        <div id="progressFill"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <ul id="checklist"></ul>
+      <p id="emptyState">No checklist loaded. Pick a job type and click Load Checklist.</p>
+    </section>
+  </main>
+
+  <script>
+    const jobTemplates = {
+      'Break-Fix': [
+        'Network Outage – Wired',
+        'Access Point Offline',
+        'Switch Port Failure',
+        'Circuit Down (Carrier)'
+      ],
+      'MAC': [
+        'User Move (Workstation Relocation)',
+        'VLAN Change / Port Reconfiguration',
+        'Patch / Repatch (IDF/MDF)',
+        'Labeling & Documentation Update'
+      ],
+      'Installation': [
+        'Access Point Installation',
+        'Switch Installation',
+        'Router Installation',
+        'Rack & Stack'
+      ],
+      'Migration': [
+        'Circuit Turn-Up',
+        'WAN Cutover',
+        'Site Network Migration',
+        'SD-WAN Deployment'
+      ],
+      'Testing': [
+        'Cable Certification (Fluke)',
+        'Loopback Testing',
+        'Post-Install Validation',
+        'Failover Testing'
+      ],
+      'Survey': [
+        'Pre-Install Survey',
+        'Power & Pathway Validation',
+        'Wireless Heat Mapping',
+        'Infrastructure Documentation Audit'
+      ],
+      'Remote Hands': [
+        'Console Access Session',
+        'Power Cycle / Smart Hands Reboot',
+        'Patch Directed by NOC',
+        'Cross-Connect Verification'
+      ],
+      'Decommission': [
+        'Equipment Removal',
+        'Circuit Disconnect',
+        'Rack Teardown',
+        'Asset Recovery & Packaging'
+      ],
+      'Emergency': [
+        'Emergency Outage Response',
+        'After-Hours Maintenance',
+        'Disaster Recovery Support',
+        'Temporary Network Deployment'
+      ]
+    };
+
+    const jobTypeEl = document.getElementById('jobType');
+    const loadBtn = document.getElementById('loadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const checklistEl = document.getElementById('checklist');
+    const emptyStateEl = document.getElementById('emptyState');
+    const progressTextEl = document.getElementById('progressText');
+    const statusLabelEl = document.getElementById('statusLabel');
+    const progressFillEl = document.getElementById('progressFill');
+    const progressBarEl = document.querySelector('.progress-track');
+
+    Object.keys(jobTemplates).forEach((type) => {
+      const option = document.createElement('option');
+      option.value = type;
+      option.textContent = type;
+      jobTypeEl.appendChild(option);
+    });
+
+    function updateProgress() {
+      const tasks = Array.from(checklistEl.querySelectorAll('.task'));
+      const total = tasks.length;
+      const done = tasks.filter((task) => task.querySelector('input').checked).length;
+      const percent = total ? Math.round((done / total) * 100) : 0;
+
+      progressTextEl.textContent = `Completion: ${done} of ${total} tasks (${percent}%)`;
+      progressFillEl.style.width = `${percent}%`;
+      progressBarEl.setAttribute('aria-valuenow', String(percent));
+
+      if (total === 0 || done === 0) {
+        statusLabelEl.textContent = 'Not Started';
+      } else if (done === total) {
+        statusLabelEl.textContent = 'Complete';
+      } else {
+        statusLabelEl.textContent = 'In Progress';
+      }
+    }
+
+    function loadChecklist(type) {
+      checklistEl.innerHTML = '';
+      const tasks = jobTemplates[type] || [];
+
+      if (!tasks.length) {
+        emptyStateEl.hidden = false;
+        updateProgress();
+        return;
+      }
+
+      emptyStateEl.hidden = true;
+
+      tasks.forEach((task, index) => {
+        const item = document.createElement('li');
+        item.className = 'task';
+
+        const id = `task-${index}`;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+
+        checkbox.addEventListener('change', () => {
+          item.classList.toggle('done', checkbox.checked);
+          updateProgress();
+        });
+
+        const label = document.createElement('label');
+        label.setAttribute('for', id);
+        label.textContent = task;
+
+        item.appendChild(checkbox);
+        item.appendChild(label);
+        checklistEl.appendChild(item);
+      });
+
+      updateProgress();
+    }
+
+    loadBtn.addEventListener('click', () => {
+      loadChecklist(jobTypeEl.value);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      jobTypeEl.value = '';
+      checklistEl.innerHTML = '';
+      emptyStateEl.hidden = false;
+      updateProgress();
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>
