@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Job Checklist App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="title-wrap">
+        <h1>Field Job Checklist <span id="buildTag" class="build-tag" aria-label="build version"></span></h1>
+        <p class="subtitle">Choose a job type, track each task, and monitor completion progress.</p>
+      </div>
+
+      <div class="job-picker">
+        <label for="jobType">Job Type</label>
+        <select id="jobType" aria-describedby="jobTypeHelp">
+          <option value="">Select a job type...</option>
+        </select>
+        <small id="jobTypeHelp" class="subtitle">Production-ready job models aligned to common field operations.</small>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Checklist Controls">
+      <div class="subtitle">Load the selected checklist, complete tasks, and reset when needed.</div>
+      <div class="buttons">
+        <button id="loadBtn" class="btn-primary" type="button">Load Checklist</button>
+        <button id="resetBtn" class="btn-secondary" type="button">Reset</button>
+      </div>
+    </section>
+
+    <section class="content" aria-live="polite">
+      <div class="panel">
+        <div class="progress-header">
+          <span id="progressText">Completion: 0 of 0 tasks (0%)</span>
+          <span id="statusPill" class="status-pill">Not Started</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Task completion progress">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <ul id="checklist" class="checklist"></ul>
+      <div id="placeholder" class="placeholder">Select a job type and click <strong>Load Checklist</strong> to begin.</div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
