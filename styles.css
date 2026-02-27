@@ -1,7 +1,7 @@
 :root {
   --bg: #1c1c1e;
   --surface: #28282b;
-  --surface-alt: #28282B;
+  --surface-alt: #343438;
   --text: #fbfbfb;
   --muted: #faf9f6;
   --border: #b01b34;
@@ -161,7 +161,7 @@ input[type='checkbox']:focus-visible {
   padding: 0.2rem 0.56rem;
   border-radius: 999px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--bg);
   background: var(--accent);
   white-space: nowrap;
 }
@@ -172,7 +172,7 @@ input[type='checkbox']:focus-visible {
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #28282B;
+  background: #1f1f22;
 }
 
 .progress-fill {
@@ -223,7 +223,7 @@ input[type='checkbox']:focus-visible {
 
 .task.done {
   border-color: var(--accent);
-  background: #28282B;
+  background: rgba(255, 213, 0, 0.1);
 }
 
 .task.done label {
